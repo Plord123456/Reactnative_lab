@@ -1,33 +1,56 @@
 import React, { Component } from 'react';
-import { FlatList, View } from 'react-native';
+import { FlatList, View,Text  } from 'react-native';
 import { ListItem, Avatar } from 'react-native-elements';
+import Loading from './LoadingComponent';
 
+// import { DISHES } from '../shared/dishes';
+import { baseUrl } from '../shared/baseUrl';
 
-import { DISHES } from '../shared/dishes';
-
+// redux
+import { connect } from 'react-redux';
+const mapStateToProps = (state) => {
+  return {
+    dishes: state.dishes
+  }
+};
 
 class Menu extends Component {
 constructor(props) {
     super(props);
-    this.state = {
-      dishes: DISHES
-    };
+    // this.state = {
+    //   dishes: DISHES
+    // };
   }
 
   render() {
-    return (
-      <FlatList
-        data={this.state.dishes}
-        renderItem={({ item, index }) => this.renderMenuItem(item, index)}
-        keyExtractor={(item) => item.id.toString()}
-      />
-    );
+    // Put the logic directly in the render method
+    if (this.props.dishes.isLoading) {
+      return (
+        <Loading />
+      );
+    } 
+    else if (this.props.dishes.errMess) {
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text>{this.props.dishes.errMess}</Text>
+        </View>
+      );
+    } 
+    else {
+      return (
+        <FlatList
+          data={this.props.dishes.dishes}
+          renderItem={({ item, index }) => this.renderMenuItem(item, index)}
+          keyExtractor={(item) => item.id.toString()}
+        />
+      );
+    }
   }
   renderMenuItem(item, index) {
     return (
         <ListItem key={index} onPress={() => this.props.navigation.navigate('Dishdetail', { dishId: item.id })}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-         <Avatar source={require('./images/uthappizza.png')} />
+    <Avatar source={{uri: baseUrl + item.image}} />
          <ListItem.Content style={{ marginLeft: 10 }}>
            <ListItem.Title>{item.name}</ListItem.Title>
            <ListItem.Subtitle>{item.description}</ListItem.Subtitle>
@@ -36,9 +59,6 @@ constructor(props) {
       </ListItem>
     );
   }
-  //1.1.4.2
-  //   onDishSelect(item) {
-  //   this.setState({ selectedDish: item });
-  // }
+
 }
-export default Menu;
+export default connect(mapStateToProps)(Menu);

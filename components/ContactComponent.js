@@ -1,4 +1,3 @@
-// components/ContactComponent.js
 
 import React, { Component } from 'react';
 import { Text, ScrollView } from 'react-native';
